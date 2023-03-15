@@ -1,0 +1,32 @@
+{
+  "name": "snipping_bot",
+  "version": "1.0.0",
+  "description": "BSC(pancakeswap v2) SNIPPING  BOT THAT  WILL BUY TOKENS AS SOON AS LIQUIDITY IS ADDED",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Paskab012/snipping_bot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Paskab012/snipping_bot/issues"
+  },
+  "homepage": "https://github.com/Paskab012/snipping_bot#readme",
+  "dependencies": {
+    "ethers": "^6.1.0",
+    "telegraf": "^4.12.2",
+    "web3": "^1.8.2",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.3",
+    "@types/ws": "^8.5.4",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5"
+  }
+}
