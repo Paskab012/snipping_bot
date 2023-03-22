@@ -1,0 +1,1 @@
+export const INF_URL = 'wss://goerli.infura.io/ws/v3/5b6b8c6d151d40cd956b66121d68dee7'
