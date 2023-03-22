@@ -38,12 +38,12 @@ const streamingData = async () => {
                 Gas Limit: ${targetGasLimit}`)
 
             } catch (error) {
-                console.log("Error processing mempool data: ", error)
+                console.log("Error processing data: ", error)
             }
         }
 
     } catch (error) {
-        console.log("Error streaming mempool data: ", error)
+        console.log("Error streaming data: ", error)
     }
 }
 
