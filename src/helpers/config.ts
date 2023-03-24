@@ -1,0 +1,35 @@
+import { PRIVATE_KEY, WSS_URL, JSON_RPC, BSCSCAN_API_KEY, PUBLIC_KEY} from "./constant";
+
+if (!PRIVATE_KEY) {
+    throw new Error(
+        'Your PRIVATE KEY is not set, please check your constant folder'
+    );
+}
+
+
+export const config = {
+    //conatains a list of tokens to monitor for addLiquidity
+    TOKENS_TO_MONITOR: [
+        "0x5a0b66cEA78384AfA3638ac901abc599372E5a83",
+        "0x5fA9Ed1FFd012EB3317eee7Ff7a9C66413290964",
+        "0x6C84a67b1F54d1a35A94A74741139FC99FDbef73",
+        "0xbc1d416Fa2C335a64ceDda993Dd35890ebE7Ee2d",
+        "0x1998d65ef3f4acD4D06AE1a54B41603c422ad2a4",
+        "0xbc1d416Fa2C335a64ceDda993Dd35890ebE7Ee2d",
+        "0x398a93ca23CBdd2642a07445bCD2b8435e0a373f",
+        "0xAdAC10D21CCcd36090aacD77db9E6c905f41BB89"
+    ],
+    TG_USERS_ID: [],
+    JSON_RPC: JSON_RPC!,
+    WSS_URL: WSS_URL!,
+    BSCSCAN_API_KEY: BSCSCAN_API_KEY!,
+    WBNB_ADDRESS: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+    PUBLIC_KEY: PUBLIC_KEY!,
+    SUPPORTED_ROUTER: ['0x10ED43C718714eb63d5aA57B78B54704E256024E'],
+    PANCAKESWAP_ROUTER: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
+    RUGCHECKER_CONTRACT: '0xbBCB85f038Dc8C8ac0123611C4E0f1CcD748ba6e',
+    BNB_BUY_AMOUNT: 0.00001 * 1e18,
+    MINIMUM_BUY_TAX: 0,
+    MINIMUM_SELL_TAX: 0
+
+}

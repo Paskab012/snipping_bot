@@ -1,0 +1,7 @@
+export const PRIVATE_KEY = 'c4222c06da6f6d9342eafcaba83170aa0bddea302483d27e1e2c9d43531c39aa'
+export const INF_URL = 'https://goerli.infura.io/v3/5b6b8c6d151d40cd956b66121d68dee7'
+export const WSS_URL = 'wss://goerli.infura.io/ws/v3/5b6b8c6d151d40cd956b66121d68dee7'
+export const JSON_RPC = ''
+export const BSCSCAN_API_KEY = ''
+export const PUBLIC_KEY = '0xbC59fc15e26b8eB0a99085FAAA7A82b9CA772316'
+export const BOT_TOKEN = ''

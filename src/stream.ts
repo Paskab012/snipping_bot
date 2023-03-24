@@ -1,4 +1,4 @@
-import {INF_URL} from './helpers'
+import {INF_URL} from './helpers/constant'
 import {ethers, providers} from 'ethers'
 
 const streamingData = async () => {
