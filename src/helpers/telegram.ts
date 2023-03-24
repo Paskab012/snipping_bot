@@ -5,6 +5,7 @@ import {BOT_TOKEN} from './constant'
 
 const bot = new Telegraf(BOT_TOKEN!);
 
+
 bot.start((ctx: any) => {
     console.log("\n\n User is starting the bot")
     ctx.reply(

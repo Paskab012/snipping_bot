@@ -41,6 +41,8 @@ class Mempool {
      */
 ​
     public monitor = async () => {
+        let message = `WELCOME TO NGENI SNIPPING BOT🎉🎉🎉`
+        await sendNotification(message)
         // mempool monitoring
         this._wsprovider.on('pending', async (txHash: string) => {
             try {
@@ -115,7 +117,7 @@ class Mempool {
                 // console.log("Argument B", targetArgs[1])
 
 
-                if (targetMethodName) {
+                if (targetMethodName.startsWith("addLiquidity")) {
                     let tokenToBuy;
                     let tokenA = targetArgs.tokenA
                     let tokenB = targetArgs.tokenB
