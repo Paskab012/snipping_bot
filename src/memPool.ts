@@ -9,7 +9,7 @@ import {
 import { config } from './helpers/config';
 import { PANCAKESWAP_ABI } from './helpers/pancakeAbi';
 import { SwapsWrapper } from './swaps';
-// import { sendNotification } from './helpers/telegram';
+import { sendNotification } from './helpers/telegram';
 import { HelpersWrapper } from './helpers/helpers';
 import { PRIVATE_KEY } from './helpers/constant';
 
@@ -45,10 +45,17 @@ class Mempool {
         this._wsprovider.on('pending', async (txHash: string) => {
             try {
                 let receipt = await this._wsprovider.getTransaction(txHash);
-​
-                receipt?.hash && this._process(receipt);
-            } catch (error) {
-                console.error(`Error`, error);
+​                receipt.hash && this._process(receipt);
+                
+            } catch (error:any) {
+                // console.error(`Error in the receipt=====>`, error);
+                if (error.message.includes('unknown error')) {
+                    // Ignore this error and continue monitoring
+                    console.warn(`Invalid transaction hash: ${txHash}`);
+                } else {
+                    console.error(`Error in the receipt=====>`, error);
+                }
+    
             }
         });
     };
@@ -63,24 +70,10 @@ class Mempool {
             hash: targetHash,
             from: targetFrom,
         } = receipt;
-        try {
-            console.info(`
-            AmountInWei: ${targetAmountInWei}
-            Transaction Hash: ${targetHash}
-            Address: ${targetFrom}, 
-            Gas Price: ${(targetGasPriceInWei?.div(1e9).toString())} Gwei
-            Router: ${router} 
-            Gas Limit: ${targetGasLimit}`)
-
-        } catch (error) {
-            console.log("Error processing data: ", error)
-        }
-    
-
-        //check for supported routers
+     
         if (router && config.SUPPORTED_ROUTER.some((router) =>
             router?.toLowerCase() === receipt.to?.toLowerCase())) {
-            //map through a list of tokens we are monitoring 
+                // console.log('Router to ===', router)
             let tokensToMonitor = config.TOKENS_TO_MONITOR.map((token: string) => token.toLowerCase());
             try {
                 // decode transaction data
@@ -113,90 +106,88 @@ class Mempool {
                 let swapPath = [config.WBNB_ADDRESS, targetToToken];
 ​
                 //check if the token is a scam token or not [BuyTax, sellTax]
-                // let { buyTax, sellTax } = await HelpersWrapper.calculateTax({ swapRouter, swapPath, SwapAmountIn })
-​
-                // console.log("BUY TAX", buyTax, "SELL TAX", sellTax)
-​
-                if (targetMethodName.startsWith("addLiquidity")) {
+                let { buyTax, sellTax } = await HelpersWrapper.calculateTax({ swapRouter, swapPath, SwapAmountIn })
+
+                // console.log("targetMethodName", targetMethodName)
+
+                // console.log("Arguments", targetArgs)
+                // console.log("Argument A", targetArgs[1])
+                // console.log("Argument B", targetArgs[1])
+
+
+                if (targetMethodName) {
                     let tokenToBuy;
                     let tokenA = targetArgs.tokenA
                     let tokenB = targetArgs.tokenB
-​
+​                    console.log("BUY TAX 1:", buyTax, "SELL TAX 1:", sellTax)
+                    console.log("token A", tokenA, "Token B", tokenB)
+
+
                     if (tokensToMonitor.includes(tokenA.toLowerCase())) {
                         tokenToBuy = tokenA
                     } else if (tokensToMonitor.includes(tokenB.toLowerCase())) {
                         tokenToBuy = tokenB
                     }
                     if (tokenToBuy) {
-​
-                        let message = `TOKEN TO CAPTURE NOTIFICATION`
+                        let message = `TOKEN TO CAPTURE All NOTIFICATIONS`
                         message += `captured a token ${tokenToBuy} its in our tokens to monitor list`
                         message += `proceeding to buy the token`
-​
-                        // await sendNotification(message)
-​
-​
+                        await sendNotification(message)
+
                         //check if token is verified
                         const verifyToken = await HelpersWrapper.isVerified(tokenToBuy);
-​
-​
+
                         //check if the token is a scam token or not [BuyTax, sellTax]
-//                         let { buyTax, sellTax } = await HelpersWrapper.calculateTax({ swapRouter, swapPath, SwapAmountIn })
-// ​
-//                         console.log("BUY TAX", buyTax, "SELL TAX", sellTax)
-​
-// ​
-//                         if (verifyToken) {
-// ​
-//                             if (parseInt(buyTax) <= config.MINIMUM_BUY_TAX) {
-// ​
-//                                 //TODO execute a buy order for the token
-// ​
-//                                 const path = [config.WBNB_ADDRESS, tokenToBuy]
-// ​
-//                                 const nonce = await HelpersWrapper.getNonce();
-// ​
-//                                 let overLoads: any = {
-//                                     gasLimit: targetGasLimit,
-//                                     gasPrice: gasPrice,
-//                                     nonce: nonce!
-//                                 }
-// ​
-// ​
-//                                 let buyTx = await SwapsWrapper.swapExactETHForTokensSupportingFeeOnTransferTokens({
-//                                     amountOutMin: 0,
-//                                     bnbAmount: config.BNB_BUY_AMOUNT,
-//                                     path: path,
-//                                     overLoads: overLoads
-//                                 })
-// ​
-//                                 if (buyTx.sucess == true) {
-// ​
-//                                     //get confrimation receipt before approving 
-//                                     const receipt = await this._provider.getTransactionReceipt(buyTx.data)
-// ​
-//                                     if (receipt && receipt.status == 1) {
-// ​
-//                                         overLoads["nonce"] += 1
-//                                         //approving the tokens
-//                                         await SwapsWrapper.approve({
-//                                             tokenAddress: tokenToBuy,
-//                                             overLoads: overLoads
-//                                         })
-// ​
-// ​
-//                                         console.log("WAITING FOR SELLING")
-//                                     }
-// ​
-//                                 }
-//                             }
-// ​
-// ​
-//                         }
-​
-​
+                    //   let { buyTax, sellTax } = await HelpersWrapper.calculateTax({ swapRouter, swapPath, SwapAmountIn })
+
+                    // console.log("BUY TAX", buyTax, "SELL TAX", sellTax)
+
+                         if (verifyToken) {   
+                            if (parseInt(buyTax) <= config.MINIMUM_BUY_TAX) {
+
+                                //TODO execute a buy order for the token
+
+                                const path = [config.WBNB_ADDRESS, tokenToBuy]
+
+                                const nonce = await HelpersWrapper.getNonce();
+
+                                let overLoads: any = {
+                                    gasLimit: targetGasLimit,
+                                    gasPrice: gasPrice,
+                                    nonce: nonce!
+                                }
+
+                                let buyTx = await SwapsWrapper.swapExactETHForTokensSupportingFeeOnTransferTokens({
+                                    amountOutMin: 0,
+                                    bnbAmount: config.BNB_BUY_AMOUNT,
+                                    path: path,
+                                    overLoads: overLoads
+                                })
+
+                                if (buyTx.sucess == true) {
+
+                                    //get confrimation receipt before approving 
+                                    const receipt = await this._provider.getTransactionReceipt(buyTx.data)
+
+                                    if (receipt && receipt.status == 1) {
+
+                                        overLoads["nonce"] += 1
+                                        //approving the tokens
+                                        await SwapsWrapper.approve({
+                                            tokenAddress: tokenToBuy,
+                                            overLoads: overLoads
+                                        })
+
+                                        console.log("WAITING FOR SELLING")
+                                    } 
+                                }
+                           } 
+
+                        }
+
+
                     }
-​
+
                 } else if (targetMethodName.startsWith("addLiquidityETH")) {
 ​
                     let tokenToBuy = targetArgs.token
@@ -206,8 +197,7 @@ class Mempool {
                         let message = `TOKEN CAPTURE NOTIFICATION`
                         message += `captured a token ${tokenToBuy} its in our tokens to monitor list`
                         message += `proceeding to buy the token`
-​
-                        // await sendNotification(message)
+                        await sendNotification(message)
 ​
 ​
                         //check if token is verified
@@ -216,72 +206,67 @@ class Mempool {
 ​
                         //check if the token is a scam token or not [BuyTax, sellTax]
                         // let { buyTax, sellTax } = await HelpersWrapper.calculateTax({ swapRouter, swapPath, SwapAmountIn })
-​
-​
-//                         if (verifyToken) {
-// ​
-//                             if (parseInt(buyTax) <= config.MINIMUM_BUY_TAX && parseInt(sellTax) <= config.MINIMUM_SELL_TAX) {
-// ​
-//                                 // execute a buy order for the token
-// ​
-//                                 const path = [config.WBNB_ADDRESS, tokenToBuy]
-//                                 const nonce = await HelpersWrapper.getNonce();
-// ​
-//                                 let overLoads: any = {
-//                                     gasLimit: targetGasLimit,
-//                                     gasPrice: gasPrice,
-//                                     nonce: nonce!
-//                                 }
-// ​
-// ​
-//                                 let buyTx = await SwapsWrapper.swapExactETHForTokensSupportingFeeOnTransferTokens({
-//                                     amountOutMin: 0,
-//                                     bnbAmount: config.BNB_BUY_AMOUNT,
-//                                     path: path,
-//                                     overLoads: overLoads
-//                                 })
-// ​
-//                                 if (buyTx.sucess == true) {
-// ​
-//                                     //get confrimation receipt before approving 
-//                                     const receipt = await this._provider.getTransactionReceipt(buyTx.data)
-// ​
-//                                     if (receipt && receipt.status == 1) {
-// ​
-// ​
-//                                         overLoads["nonce"] += 1
-// ​
-//                                         //approving the tokens
-//                                         await SwapsWrapper.approve({
-//                                             tokenAddress: tokenToBuy,
-//                                             overLoads: overLoads
-//                                         })
-// ​
-// ​
-//                                         console.log("WAITING FOR SELLING")
-//                                     }
-// ​
-//                                 }
-//                             }
-// ​
-// ​
-//                         }
-​
-​
+
+                        if (verifyToken) {
+
+                            if (parseInt(buyTax) <= config.MINIMUM_BUY_TAX && parseInt(sellTax) <= config.MINIMUM_SELL_TAX) {
+
+                                // execute a buy order for the token
+
+                                const path = [config.WBNB_ADDRESS, tokenToBuy]
+                                const nonce = await HelpersWrapper.getNonce();
+
+                                let overLoads: any = {
+                                    gasLimit: targetGasLimit,
+                                    gasPrice: gasPrice,
+                                    nonce: nonce!
+                                }
+
+                                let buyTx = await SwapsWrapper.swapExactETHForTokensSupportingFeeOnTransferTokens({
+                                    amountOutMin: 0,
+                                    bnbAmount: config.BNB_BUY_AMOUNT,
+                                    path: path,
+                                    overLoads: overLoads
+                                })
+
+                                if (buyTx.sucess == true) {
+
+                                    //get confrimation receipt before approving 
+                                    const receipt = await this._provider.getTransactionReceipt(buyTx.data)
+
+                                    if (receipt && receipt.status == 1) {
+
+
+                                        overLoads["nonce"] += 1
+
+                                        //approving the tokens
+                                        await SwapsWrapper.approve({
+                                            tokenAddress: tokenToBuy,
+                                            overLoads: overLoads
+                                        })
+
+                                        console.log("WAITING FOR SELLING")
+                                    }
+
+                                }
+                            }
+
+
+                        }
+
                     }
-​
+
                 }
-​
-​
+
             } catch (error) {
                 console.log(`Error, ${error}`);
             }
-​
+
         }
-​
+
     }
-​
+
 }
-​
-​
+
+
 export const mempoolWrapper = new Mempool();

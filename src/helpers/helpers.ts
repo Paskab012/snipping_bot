@@ -65,53 +65,56 @@ export class Helpers {
         return msg;
     };
 
-    // calculateTax = async (_params: { swapRouter: string, swapPath: Array<string>, SwapAmountIn: any }):
-    //     Promise<{ buyTax: any | undefined, sellTax: any | undefined }> => {
+    calculateTax = async (_params: { swapRouter: string, swapPath: Array<string>, SwapAmountIn: any }):
+        Promise<{ buyTax: any | undefined, sellTax: any | undefined }> => {
 
-    //     const { swapRouter, swapPath, SwapAmountIn } = _params;
+        const { swapRouter, swapPath, SwapAmountIn } = _params;
+        try {
+            const simulate = this.simulationContract();
 
-    //     try {
+            const response = await simulate.callStatic.screen(swapRouter, swapPath, SwapAmountIn, {
+                gasLimit: 1000000,
+            });
+            const estimatedBuy = parseInt(response.estimatedBuy);
+            const actualBuy = parseInt(response.actualBuy);
+            const estimatedSell = parseInt(response.estimatedSell);
+            const actualSell = parseInt(response.actualSell);
+            const buyGas = parseInt(response.buyGas);
+            const sellGas = parseInt(response.sellGas);
 
+            const token = response.token;
+            console.log('token===>', token)
 
-    //         const simulate = this.simulationContract();
+            let buyTax, sellTax;
 
-    //         const response = await simulate.callStatic.screen(swapRouter, swapPath, SwapAmountIn, {
-    //             gasLimit: 1000000,
-    //         });
-    //         const estimatedBuy = parseInt(response.estimatedBuy);
-    //         const actualBuy = parseInt(response.actualBuy);
-    //         const estimatedSell = parseInt(response.estimatedSell);
-    //         const actualSell = parseInt(response.actualSell);
-    //         const buyGas = parseInt(response.buyGas);
-    //         const sellGas = parseInt(response.sellGas);
+            console.log({'estimatedBuy': estimatedBuy, 
+                            'ActualBuy':actualBuy, 
+                            'Estimated Sell':estimatedSell, 
+                            'Actual sell':actualSell, 
+                            'Sold gas':sellGas, 
+                            'Bought Gas':buyGas, 
+                            'Token address':token });
 
-    //         const token = response.token;
+            if (estimatedBuy > actualBuy) {
 
-    //         let buyTax, sellTax;
+                buyTax = ((estimatedBuy - actualBuy) / ((estimatedBuy + actualBuy) / 2)) * 100;
+            }
 
-    //         console.log({ estimatedBuy, actualBuy, estimatedSell, actualSell, sellGas, buyGas, token });
+            if (estimatedSell > actualSell) {
 
-    //         if (estimatedBuy > actualBuy) {
+                sellTax = ((estimatedSell - actualSell) / ((estimatedSell + actualSell) / 2)) * 100;
 
-    //             buyTax = ((estimatedBuy - actualBuy) / ((estimatedBuy + actualBuy) / 2)) * 100;
-    //         }
+            }
 
-    //         if (estimatedSell > actualSell) {
+            return { buyTax, sellTax };
 
-    //             sellTax = ((estimatedSell - actualSell) / ((estimatedSell + actualSell) / 2)) * 100;
+        } catch (error) {
+            error = this.parseError(error);
+            console.log('Error calculating tax in helper file', error);
+            return { buyTax: 0, sellTax: 0 };
 
-    //         }
-
-    //         return { buyTax, sellTax };
-
-    //     } catch (error) {
-
-    //         error = this.parseError(error);
-    //         console.log('Error calculating tax', error);
-    //         return { buyTax: 0, sellTax: 0 };
-
-    //     }
-    // }
+        }
+    }
 
     isVerified = async (contractAddress: string) => {
         try {
