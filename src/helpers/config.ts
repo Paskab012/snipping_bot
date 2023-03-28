@@ -8,7 +8,6 @@ if (!PRIVATE_KEY) {
 
 
 export const config = {
-    //conatains a list of tokens to monitor for addLiquidity
     TOKENS_TO_MONITOR: [
        "0xD26615b68a5c39A61db5c1fB66Fd6Cd7964064c8"
     ],

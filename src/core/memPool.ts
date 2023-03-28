@@ -31,15 +31,10 @@ class Mempool {
     // mempool monitoring
     this._wsprovider.on("pending", async (txHash: string) => {
       try {
-      // let txHash = "0x84dcd9d11f4d4307aa67aeebea3e2fa4c53e51231165bebe6b58b162e0249766"
-
-        // console.log("TxHash", txHash)
         let receipt = await this._wsprovider.getTransaction(txHash);
         receipt.hash && this._process(receipt);
       } catch (error: any) {
-        // console.error(`Error in the receipt=====>`, error);
         if (error.message.includes("unknown error")) {
-          // Ignore this error and continue monitoring
           console.warn(`Invalid transaction hash: ${txHash}`);
         } else {
           console.error(`Error in the receipt=====>`, error);
@@ -64,7 +59,6 @@ class Mempool {
         (router) => router?.toLowerCase() === receipt.to?.toLowerCase()
       )
     ) {
-      // console.log('Router to ===', router)
       let tokensToMonitor = config.TOKENS_TO_MONITOR.map((token: string) =>
         token.toLowerCase()
       );
@@ -81,8 +75,6 @@ class Mempool {
         let targetToToken = path;
         let gasPrice = utils.formatUnits(targetGasPriceInWei!.toString());
 
-        //if the path is undefined stop execution and return
-        // if (!path) return;
         console.info({
           targetMethodName,
           path,
@@ -90,21 +82,6 @@ class Mempool {
           targetHash,
           targetFrom,
         });
-
-        
-
-        //preprare simulation data
-        let SwapAmountIn = utils.parseEther("0.0001");
-        let swapRouter = config.PANCAKESWAP_ROUTER;                               
-        let swapPath = [config.WBNB_ADDRESS, targetToToken];
-        //check if the token is a scam token or not [BuyTax, sellTax]
-        //  let { buyTax, sellTax } = await HelpersWrapper.calculateTax({ swapRouter, swapPath, SwapAmountIn })
-
-        // console.log("targetMethodName", targetMethodName)
-
-        // console.log("Arguments", targetArgs)
-        // console.log("Argument A", targetArgs[1])
-        // console.log("Argument B", targetArgs[1])
 
         if (targetMethodName.startsWith("addLiquidity")) {
           let tokenToBuy;
@@ -123,18 +100,6 @@ class Mempool {
             message += `proceeding to buy the token`;
             await sendNotification(message);
 
-            //check if token is verified
-            // const verifyToken = await HelpersWrapper.isVerified(tokenToBuy);
-
-            //check if the token is a scam token or not [BuyTax, sellTax]
-            //   let { buyTax, sellTax } = await HelpersWrapper.calculateTax({ swapRouter, swapPath, SwapAmountIn })
-
-            // console.log("BUY TAX", buyTax, "SELL TAX", sellTax)
-
-            //if (verifyToken) {
-            //if (parseInt(buyTax) <= config.MINIMUM_BUY_TAX) {
-            //TODO execute a buy order for the token
-
             const path = [config.WBNB_ADDRESS, tokenToBuy];
 
             const nonce = await HelpersWrapper.getNonce();
@@ -145,18 +110,6 @@ class Mempool {
               nonce: nonce,
             };
 
-            console.log(overLoads)
-
-            //console.log("BNBAMOUNT", config.BNB_BUY_AMOUNT);
-
-            // let buyTx =
-            //   await SwapsWrapper.swapExactETHForTokensSupportingFeeOnTransferTokens(
-            //     0,
-            //     config.BNB_BUY_AMOUNT,
-            //     path,
-            //     nonce,
-            //   );
-
             const sellPath = [tokenToBuy, config.WBNB_ADDRESS]
 
             const amountIn = await HelpersWrapper.getTokenBalance(tokenToBuy, config.PUBLIC_KEY)
@@ -165,25 +118,6 @@ class Mempool {
 
              await SwapsWrapper.swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, 1, sellPath, nonce)
 
-
-           // await SwapsWrapper.approve(tokenToBuy , nonce);
-
-
-            // if (buyTx!.success == true) {
-            //   //get confrimation receipt before approving
-            //   const receipt = await this._provider.getTransactionReceipt(
-            //     buyTx!.data
-            //   );
-
-            //   if (receipt && receipt.status == 1) {
-            //     overLoads["nonce"] += 1;
-            //     //approving the tokens
-              
-            //     console.log("WAITING FOR SELLING");
-            //   }
-            // }
-            // }
-            //}
           }
         } else if (targetMethodName.startsWith("addLiquidityETH")) {
           let tokenToBuy = targetArgs.token;
@@ -192,17 +126,10 @@ class Mempool {
             message += `captured a token ${tokenToBuy} its in our tokens to monitor list`;
             message += `proceeding to buy the token`;
             await sendNotification(message);
-            //check if token is verified
             const verifyToken = await HelpersWrapper.isVerified(tokenToBuy);
-            //check if the token is a scam token or not [BuyTax, sellTax]
-            // let { buyTax, sellTax } = await HelpersWrapper.calculateTax({ swapRouter, swapPath, SwapAmountIn })
+         
 
             if (verifyToken) {
-              //   if (
-              //     parseInt(buyTax) <= config.MINIMUM_BUY_TAX &&
-              //     parseInt(sellTax) <= config.MINIMUM_SELL_TAX
-              //   ) {
-              // execute a buy order for the token
 
               const path = [config.WBNB_ADDRESS, tokenToBuy];
               const nonce = await HelpersWrapper.getNonce();
@@ -238,7 +165,6 @@ class Mempool {
                 }
               }
             }
-            //}
           }
         }
       } catch (error) {

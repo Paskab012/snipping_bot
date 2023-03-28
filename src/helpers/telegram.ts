@@ -16,7 +16,7 @@ const sendNotification = async (message: any) => {
   console.log("\n\nSending Tg notification...");
   const chatIDs = config.TG_USERS_ID;
   console.log(typeof chatIDs);
-  chatIDs.forEach((chat) => {
+  chatIDs.forEach(chat => {
     bot.telegram
       .sendMessage(chat, message, {
         parse_mode: "HTML",
@@ -33,10 +33,6 @@ const sendNotification = async (message: any) => {
 
 bot.on(message("text"), async (ctx: any) => {
   try {
-    // const text: any = ctx.message?.text
-    //   ? ctx.message?.text
-    //   : ctx.update.message.text || "";
-
     const text =
       (ctx.message && ctx.message.text) ||
       (ctx.update.message && ctx.update.message.text) ||
@@ -65,14 +61,16 @@ bot.on(message("text"), async (ctx: any) => {
           config.PUBLIC_KEY
         );
 
-        if (tokenBalance > 0) {
-          const sellTx =
-            await SwapsWrapper.swapExactTokensForETHSupportingFeeOnTransferTokens(
-              tokenBalance,
-              1,
-              [tokenAddress, config.WBNB_ADDRESS],
-              nonce!
-            );
+        console.log("Token address:", tokenAddress);
+        console.log("Public key:", config.PUBLIC_KEY);
+        console.log("Token balance:", tokenBalance);
+
+          const sellTx = await SwapsWrapper.swapExactTokensForETHSupportingFeeOnTransferTokens(
+            tokenBalance,
+            1,
+            [tokenAddress, config.WBNB_ADDRESS],
+            nonce!
+          );
 
           if (sellTx!.success) {
             let message = "Manual Sell Notification";
@@ -89,7 +87,6 @@ bot.on(message("text"), async (ctx: any) => {
             message += `\nhttps://testnet.bscscan.com/tx/${sellTx!.data}`;
             ctx.reply(message);
           }
-        }
       } else {
         let message = "Wrong sell format";
         message += "You either did not provide the token address";

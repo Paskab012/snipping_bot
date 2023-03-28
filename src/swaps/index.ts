@@ -101,7 +101,7 @@ class Swaps extends Helpers {
 
             const contract = await this.pancakeSwapContract();
 
-            const tx = await contract.swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, config.PUBLIC_KEY, deadline, {nonce});
+            const tx = await contract.swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, config.PUBLIC_KEY, deadline, {nonce , gasLimit: 1000000});
 
             console.log("**".repeat(20));
             console.log("******SELL TRANSACTION********", tx.hash)
