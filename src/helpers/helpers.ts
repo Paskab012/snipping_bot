@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Contract, providers, utils, Wallet } from "ethers";
+import { Contract, ethers, providers, utils, Wallet } from "ethers";
 import { config } from "./config";
 import { PANCAKESWAP_ABI, RUG_CHECKER } from "./pancakeAbi";
 import {PRIVATE_KEY} from './constant'
@@ -177,6 +177,17 @@ export class Helpers {
             console.log('Error fecthing Token Balance ', error);
         }
     }
+     checkAddress = (ctx: any, address: string) => {
+    try {
+        const tokenAddress = ethers.utils.getAddress(address);
+        return tokenAddress;
+      } catch (error) {
+        let message = "Error  ";
+        message += "\n\n Invalid token address provided ";
+        message += `\n\n ${error}`;
+        ctx.reply(message);
+      }
+    };
 
 
 }

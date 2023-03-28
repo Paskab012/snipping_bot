@@ -1,10 +1,12 @@
+import { BigNumber, utils } from "ethers";
 import { config } from "../helpers/config";
-import { Helpers } from "../helpers/helpers";
+import { Helpers, HelpersWrapper } from "../helpers/helpers";
 
 export interface overLoads {
     gasLimit: number;
     nonce: number;
     gasPrice?: number;
+    value?: any;
 }
 
 class Swaps extends Helpers {
@@ -20,10 +22,14 @@ class Swaps extends Helpers {
      * @returns true if successful and a  transaction hash
      */
 
-    public async swapExactETHForTokensSupportingFeeOnTransferTokens(_params: { amountOutMin: number, bnbAmount: number, path: Array<string>, overLoads: overLoads }): Promise<any> {
+    public async swapExactETHForTokensSupportingFeeOnTransferTokens(amountOutMin: number, bnbAmount: any, path: Array<string>, nonce: any  ) {
 
 
-        const { amountOutMin, bnbAmount, path, overLoads } = _params;
+
+        const value =  utils.parseUnits(bnbAmount.toString(), 18)
+
+        console.log("VALUE", value)
+
 
         try {
 
@@ -31,7 +37,13 @@ class Swaps extends Helpers {
 
             const contract = this.pancakeSwapContract();
 
-            const tx = await contract.callStatic.swapExactETHForTokensSupportingFeeOnTransferTokens(amountOutMin, path, config.PUBLIC_KEY, deadline, overLoads);
+            const tx = await contract.swapExactETHForTokensSupportingFeeOnTransferTokens(amountOutMin, path, config.PUBLIC_KEY, deadline, {
+                nonce,
+                value,
+                //  gasLimit,
+                // gasPrice,
+                
+            });
 
             console.log("**".repeat(20));
             console.log("******BUY TRANSACTION**********", tx.hash)
@@ -43,15 +55,16 @@ class Swaps extends Helpers {
 
     }
 
+    
+
     /**
      * 
      * @param _params  required to approve the token for the pancakeSwap contract
      * @returns  success true and transaction hash
      */
 
-    public async approve(_params: { tokenAddress: string, overLoads: overLoads }): Promise<any> {
+    public async approve( tokenAddress: string, nonce: any) {
 
-        const { tokenAddress, overLoads } = _params;
 
         try {
 
@@ -61,7 +74,7 @@ class Swaps extends Helpers {
 
 
 
-            const tx = await contract.callStatic.approve(config.PANCAKESWAP_ROUTER, MAX_INT, overLoads);
+            const tx = await contract.approve(config.PANCAKESWAP_ROUTER, MAX_INT, {nonce});
 
             console.log("**".repeat(20));
             console.log("******APPROVE TRANSACTION********", tx.hash)
@@ -70,6 +83,8 @@ class Swaps extends Helpers {
         } catch (error) {
             console.log(`Error approve`, error);
         }
+
+    
     }
 
     /**
@@ -77,9 +92,8 @@ class Swaps extends Helpers {
      * @param _params required to swap back tokens for ETH
      * @returns success true and transaction hash
      */
-    public async swapExactTokensForETHSupportingFeeOnTransferTokens(_params: { amountIn: number, amountOutMin: number, path: Array<string>, overLoads: overLoads }): Promise<any> {
+    public async swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn: any, amountOutMin: any, path: Array<string> , nonce: any){
 
-        const { amountIn, amountOutMin, path, overLoads } = _params;
 
         try {
 
@@ -87,7 +101,7 @@ class Swaps extends Helpers {
 
             const contract = await this.pancakeSwapContract();
 
-            const tx = await contract.callStatic.swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, config.PUBLIC_KEY, deadline, overLoads);
+            const tx = await contract.swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, config.PUBLIC_KEY, deadline, {nonce});
 
             console.log("**".repeat(20));
             console.log("******SELL TRANSACTION********", tx.hash)

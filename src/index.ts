@@ -1,4 +1,4 @@
-import { mempoolWrapper } from "./memPool";
+import { mempoolWrapper } from "./core/memPool";
 
 const Main = async () => {
 
