@@ -61,10 +61,6 @@ bot.on(message("text"), async (ctx: any) => {
           config.PUBLIC_KEY
         );
 
-        console.log("Token address:", tokenAddress);
-        console.log("Public key:", config.PUBLIC_KEY);
-        console.log("Token balance:", tokenBalance);
-
           const sellTx = await SwapsWrapper.swapExactTokensForETHSupportingFeeOnTransferTokens(
             tokenBalance,
             1,

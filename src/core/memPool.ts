@@ -109,14 +109,31 @@ class Mempool {
               gasPrice: gasPrice,
               nonce: nonce,
             };
+            console.log('overloads====>', overLoads)
+            let buyTx =
+            await SwapsWrapper.swapExactETHForTokensSupportingFeeOnTransferTokens(
+              0,
+              config.BNB_BUY_AMOUNT,
+              path,
+              nonce
+            );
+            // await SwapsWrapper.approve(tokenToBuy , nonce! + 1); 
 
-            const sellPath = [tokenToBuy, config.WBNB_ADDRESS]
+            if (buyTx!) {
+              //get confrimation receipt before approving
+              const receipt = await this._provider.getTransactionReceipt(
+                buyTx!.data
+              );
 
-            const amountIn = await HelpersWrapper.getTokenBalance(tokenToBuy, config.PUBLIC_KEY)
+              if (receipt && receipt.status == 1) {
+                
 
-            console.log("TOKEN BALANCE", amountIn)
+                //approving the tokens
+                await SwapsWrapper.approve(tokenToBuy , nonce! +1); 
 
-             await SwapsWrapper.swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, 1, sellPath, nonce)
+                console.log("WAITING FOR SELLING");
+              }
+            }
 
           }
         } else if (targetMethodName.startsWith("addLiquidityETH")) {
